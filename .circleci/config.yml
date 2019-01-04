@@ -63,21 +63,22 @@ jobs:
     docker:
     - image: circleci/python:2.7.15
 
-    - attach_workspace:
-        at: /tmp/src/circleci-101
-
     working_directory: /tmp/src/circleci-101
 
     - steps:
-        - run:
-            name: Run tests
-            command: |
-              . venv/bin/activate
-              pytest
+        -
+      - attach_workspace:
+        at: /tmp/src/circleci-101
 
-        - store_artifacts:
-            path: test-results
-            destination: test
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            pytest
+
+      - store_artifacts:
+          path: test-results
+          destination: test
 
   deploy:
     docker:
@@ -90,11 +91,11 @@ jobs:
 
       - steps:
         - run:
-          name: Update lambda functions with zappa
-          command: |
-            . venv/bin/activate
-            sudo pip install pip==10.0.1
-            zappa update
+            name: Update lambda functions with zappa
+            command: |
+              . venv/bin/activate
+              sudo pip install pip==10.0.1
+              zappa update
 
 
   workflows:
