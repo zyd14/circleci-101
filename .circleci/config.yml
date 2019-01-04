@@ -57,7 +57,7 @@ jobs:
           destination: test-reports
 
       - persist_to_workspace:
-          root: /home/circleci/circleci-101/
+          root: /home/circleci/circleci-101
 
   test:
     docker:
