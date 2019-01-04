@@ -71,15 +71,24 @@ jobs:
       - attach_workspace:
           at: /tmp/src/circleci-101
 
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
       - run:
           name: Run tests
           command: |
             . venv/bin/activate
-            pytest
+            pytest --log-file=./test_results/test_log.txt
 
       - store_artifacts:
           path: test-results
           destination: test
+
+      - store_test_results:
+          path: ./test_results/test_log.txt
 
   deploy:
     docker:
@@ -90,6 +99,13 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/src/circleci-101
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
       - run:
           name: Update lambda functions with zappa
           command: |
