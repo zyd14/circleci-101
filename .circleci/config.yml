@@ -56,7 +56,7 @@ jobs:
           destination: test-reports
 
       - persist_to_workspace:
-          root: .
+          root: ~/circleci-101
           paths: circleci-101
 
   test:
