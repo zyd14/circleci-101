@@ -1,22 +1,113 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
 version: 2
 jobs:
-  one:
+  build:
     docker:
-      - image: circleci/ruby:2.4.1
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:2.7.15
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+    # environment:
+    #   AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+    #   AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+    #   AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+
+    working_directory: ~/circleci-101
+
     steps:
       - checkout
-      - run: echo "A first hello"
-      - run: sleep 25
-  two:
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: Build/Install dependencies
+          command: |
+            pip install virtualenv
+            python -m virtualenv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      # run tests!
+      # this example uses Django's built-in test-runner
+      # other common Python testing frameworks include pytest and nose
+      # https://pytest.org
+      # https://nose.readthedocs.io
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
+
+      - persist_to_workspace:
+          root: ~
+          paths: circleci-101
+
+  test:
     docker:
-      - image: circleci/ruby:2.4.1
-    steps:
-      - checkout
-      - run: echo "A more familiar hi"
-      - run: sleep 15
-workflows:
-  version: 2
-  one_and_two:
-    jobs:
-      - one
-      - two
+    - image: circleci/python:2.7.15
+
+    - attach_workspace:
+        at: /tmp/src/circleci-101
+
+    working_directory: /tmp/src/circleci-101
+
+    - steps:
+        - run:
+            name: Run tests
+            command: |
+              . venv/bin/activate
+              pytest
+
+        - store_artifacts:
+            path: test-results
+            destination: test
+
+  deploy:
+    docker:
+      - image: circleci/python:2.7.15
+
+      - attach_workspace:
+          at: /tmp/src/circleci-101
+
+      working_directory: /tmp/src/gems-lambda-trigger
+
+      - steps:
+        - run:
+          name: Update lambda functions with zappa
+          command: |
+            . venv/bin/activate
+            sudo pip install pip==10.0.1
+            zappa update
+
+
+  workflows:
+    version: 2
+    build-test-deploy:
+      jobs:
+        - build
+        - test:
+            requires: build
+            filters:
+              branches:
+                ignore: master
+        - deploy:
+            requires: test
+            filters:
+                branches:
+                  only: master
