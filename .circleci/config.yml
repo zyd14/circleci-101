@@ -100,12 +100,14 @@ workflows:
     jobs:
       - build
       - test:
-          requires: build
+          requires:
+            - build
           filters:
             branches:
               ignore: master
       - deploy:
-          requires: test
+          requires:
+            - build
           filters:
-              branches:
-                only: master
+            branches:
+              only: master
