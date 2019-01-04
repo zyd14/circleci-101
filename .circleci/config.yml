@@ -81,14 +81,14 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            pytest --log-file=./test_log.txt
+            pytest test_something.py --log-file=./test_log.txt
 
       - store_artifacts:
           path: test-results
           destination: test
 
       - store_test_results:
-          path: ./test_results/test_log.txt
+          path: ./test_log.txt
 
   deploy:
     docker:
