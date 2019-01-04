@@ -58,6 +58,8 @@ jobs:
 
       - persist_to_workspace:
           root: ~/circleci-101
+          paths:
+            - .
 
   test:
     docker:
