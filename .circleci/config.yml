@@ -56,7 +56,7 @@ jobs:
           destination: test-reports
 
       - persist_to_workspace:
-          root: ~
+          root: ~/circleci-101
           paths: circleci-101
 
   test:
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - attach_workspace:
-        at: /tmp/src/circleci-101
+          at: /tmp/src/circleci-101
 
       - run:
           name: Run tests
@@ -96,7 +96,7 @@ jobs:
 
 
   workflows:
-    version: 2
+    version: 2.0
     build-test-deploy:
       jobs:
         - build
