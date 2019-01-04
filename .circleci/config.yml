@@ -81,7 +81,7 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            pytest test_something.py --log-file=./test_log.txt
+            pytest ./test_something.py --log-file=./test_log.txt
 
       - store_artifacts:
           path: test-results
