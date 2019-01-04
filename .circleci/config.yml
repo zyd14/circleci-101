@@ -65,8 +65,7 @@ jobs:
 
     working_directory: /tmp/src/circleci-101
 
-    - steps:
-        -
+    steps:
       - attach_workspace:
         at: /tmp/src/circleci-101
 
@@ -89,7 +88,7 @@ jobs:
 
       working_directory: /tmp/src/gems-lambda-trigger
 
-      - steps:
+      steps:
         - run:
             name: Update lambda functions with zappa
             command: |
